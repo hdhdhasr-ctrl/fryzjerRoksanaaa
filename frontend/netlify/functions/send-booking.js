@@ -153,12 +153,8 @@ exports.handler = async function (event, context) {
         smsParams.append('to', smsplanetPhone);
         smsParams.append('msg', `Nowa rezerwacja: ${name}, ${service}, ${date} ${time}, tel: ${phone}`);
 
-        const smsResponse = await fetch('https://api2.smsplanet.pl/sms', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          body: smsParams
+        const smsResponse = await fetch(`https://api2.smsplanet.pl/sms?${smsParams.toString()}`, {
+        method: 'GET'
         });
 
         if (smsResponse.ok) {
