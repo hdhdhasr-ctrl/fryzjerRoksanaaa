@@ -153,21 +153,9 @@ exports.handler = async function (event, context) {
         smsParams.append('to', smsplanetPhone);
         smsParams.append('msg', `Nowa rezerwacja: ${name}, ${service}, ${date} ${time}, tel: ${phone}`);
 
-        const smsResponseText = await smsResponse.text();
-      console.log('SMSPlanet raw response:', smsResponseText);
-
-      let smsData = {};
-      try {
-      smsData = JSON.parse(smsResponseText);
-      } catch (e) {
-      smsData = { rawText: smsResponseText };
-      }
-
-      if (smsResponse.ok && smsData.id) {
-      smsSuccess = true;
-      } else {
-      smsErrorMsg = `SMSPlanet response: ${smsResponseText}`;
-      }
+        const smsResponse = await fetch(`https://api2.smsplanet.pl/sms?${smsParams.toString()}`, {
+        method: 'GET'
+        });
 
         if (smsResponse.ok) {
           const smsData = await smsResponse.json().catch(() => ({}));
