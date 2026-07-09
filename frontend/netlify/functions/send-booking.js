@@ -159,6 +159,7 @@ exports.handler = async function (event, context) {
 
         if (smsResponse.ok) {
           const smsData = await smsResponse.json().catch(() => ({}));
+          console.log("SMSPlanet response:", smsData);
           // In SMSPlanet, a successful response contains an ID or status OK
           if (smsData && (smsData.id || smsData.status === 'OK' || smsData.success || !smsData.error)) {
             smsSuccess = true;
