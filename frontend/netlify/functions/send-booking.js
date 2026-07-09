@@ -153,21 +153,31 @@ exports.handler = async function (event, context) {
         smsParams.append('to', smsplanetPhone);
         smsParams.append('msg', `Nowa rezerwacja: ${name}, ${service}, ${date} ${time}, tel: ${phone}`);
 
-        const smsResponse = await fetch(`https://api2.smsplanet.pl/sms?${smsParams.toString()}`, {
-        method: 'GET'
+                const smsParams = new URLSearchParams();
+        smsParams.append("key", smsplanetKey);
+        smsParams.append("password", smsplanetPassword);
+        smsParams.append("to", smsplanetPhone);
+        smsParams.append("from", "INFO");
+        smsParams.append(
+          "msg",
+          `Nowa rezerwacja: ${name}, ${service}, ${date} ${time}, tel: ${phone}`
+        );
+
+        const smsResponse = await fetch("https://api2.smsplanet.pl/sms", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: smsParams.toString()
         });
 
+        const responseText = await smsResponse.text();
+        console.log("SMSPlanet response:", responseText);
+
         if (smsResponse.ok) {
-          const smsData = await smsResponse.json().catch(() => ({}));
-          console.log("SMSPlanet response:", smsData);
-          // In SMSPlanet, a successful response contains an ID or status OK
-          if (smsData && (smsData.id || smsData.status === 'OK' || smsData.success || !smsData.error)) {
-            smsSuccess = true;
-          } else {
-            smsErrorMsg = `SMSPlanet error code: ${JSON.stringify(smsData)}`;
-          }
+          smsSuccess = true;
         } else {
-          smsErrorMsg = `SMSPlanet status: ${smsResponse.status} ${await smsResponse.text()}`;
+          smsErrorMsg = `SMSPlanet status: ${smsResponse.status} ${responseText}`;
         }
       } catch (err) {
         smsErrorMsg = `Błąd wysyłki SMS: ${err.message}`;
